@@ -1,0 +1,8 @@
+# udev rules for the OPNIC / Pico board
+
+SUBSYSTEM=="usb", ATTRS{idVendor}=="2e8a", GROUP="plugdev", MODE="0660", SYMLINK+="rp2040upl%n"
+
+# Regular uf2
+KERNEL=="rp2040upl*", GROUP="plugdev", MODE="0660"
+# Micropython
+SUBSYSTEM=="tty", ATTRS{idVendor}=="2e8a", MODE="0660"
