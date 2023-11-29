@@ -14,24 +14,26 @@ work, and useful information for you to get to know us better.
 
 ## Snake Game Development
 
-For this, the decision was to use the pico SDK and the C++ language to meet the
-fact that C++ has better performance than Python, and we have a small flash
-memory, so C++ has a smaller footprint than python.
+For this, the decision was to use the
+[pico SDK](https://github.com/raspberrypi/pico-sdk) and the C++ language to meet
+the fact that C++ has better performance than Python as well as a smaller
+footprint, which is better for us due to the small flash memory.
 
-The game itself is developed using both cores of the RP2040 where core-0 runs
-the [physics calculation of the game](#game-physics) while core-1 is in
+The game itself is developed using both cores of the RP2040 where Core-0 runs
+the [physics calculation of the game](#game-physics) while Core-1 is in
 charge of [drawing the game images](#world-class).
 
 ### Snake
 
 The base element of the snake is the `particle` class that represents the
-physical properties of the snake, such as position and velocity. It is worth
-noting that in this implementation the snake moves, the world stands still. This
-is accomplished via the `Viewport` class.
+physical properties of the snake, such as position and velocity. In this
+implementation, we developed a `Viewport` class to control how the world is
+seen with respect to the snake's movement. In other words, as the snake moves,
+the world stands still but the `Viewport` moves together.
 
 ### Loading Sprites
 
-The game contains some PNG images that are embedded into the firmware. And the
+The game contains some PNG images that are embedded into the firmware. The
 images are decompressed at runtime using the PngImage library. Because of that,
 we need to have some temporary buffers at runtime to render the images and be
 able to draw them on the screen. However, because we have a limited SRAM
@@ -44,11 +46,12 @@ For example, suppose we have an image that represents a Coin. And we have in
 total 200 Coins spread over the game's world. Of course just a few of them will
 be on the viewport's view at any time (then they should be displayed), and the
 others will be off the viewport's view (thus, not displayed). Because of this,
-it can be released if and only if we are sure that none of the Coins are in the
-viewsport's view, thus we can release it from memory. If that is not true, then
-we should keep the Coin's image for as long as it is visible in the viewport.
-And, to make it clear, only a single Coin image is loaded for those 200 Coins.
-The 200 Coins are just the reference where the Coin image should be drawn.
+the Coin image can be released if and only if we are sure that none of the Coins
+are in the viewsport's view anymore, thus we can release the image from memory.
+If that is not true, then we should keep the Coin's image for as long as it is
+visible in the viewport. To make it clear, only a single Coin image is loaded
+for those 200 Coins. The 200 Coins are just the reference where the Coin image
+(also called sprite) should be drawn.
 
 ### Object Class
 
@@ -73,7 +76,7 @@ class, as to avoid the unnecessary SRAM usage.
 
 At the end, an `Object` is represented by its coordinate `x` and `y`, its
 `width` and `height`, and its object `type`. So, the different objects are
-generalized by these information. So, to mutate between objects, we simply
+generalized by these information. Thus, to mutate between objects, we simply
 mutate the base `Object` by the specialized class at runtime. So, the objects
 coordinates, widths and heights are kept as a simple array, and the game iterate
 over these arrays, mutating the `Object` class based on the object `type`.
@@ -108,9 +111,9 @@ near by a `BlackHole`. So, the `Physics` file implements the `Particle` class,
 as well as the `Vector` class.
 
 The `Vector` class represents a 2-axis unit vector, where it has the
-x-coordinate, y-axis coordinate, and the angle formed by the vector x and y.
-This vector is the base for calculating the physics behind the objects that
-require it.
+x-axis coordinate, y-axis coordinate, and the angle in radians formed by the
+vector x and y. This vector is the base for calculating the physics behind the
+objects that require it.
 
 Then, there is the `Particle` object, that represents a object that can move (as
 the snake does), which it has the `Vector` position and the `Vector` velocity.
